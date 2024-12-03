@@ -1,3 +1,5 @@
+"use client"
+
 import {FcGoogle} from "react-icons/fc";
 import {FaGithub} from "react-icons/fa";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
@@ -11,10 +13,16 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {z} from "zod";
 import {registerSchema} from "@/features/auth/schemas";
 import {useRegister} from "@/features/auth/api/use-register";
+import {getCurrent} from "@/features/auth/actions";
+import {redirect} from "next/navigation";
 
-export const SignUpCard = () => {
+export const SignUpCard = async () => {
 
-    const { mutate } = useRegister();
+    const user = await getCurrent();
+
+    if (user) redirect("/");
+
+    const {mutate, isPending} = useRegister();
 
     const form = useForm<z.infer<typeof registerSchema>>({
         resolver: zodResolver(registerSchema),
@@ -26,7 +34,7 @@ export const SignUpCard = () => {
     });
 
     const onSubmit = (values: z.infer<typeof registerSchema>) => {
-        mutate({ json: values});
+        mutate({json: values});
     };
 
     return (
@@ -94,8 +102,8 @@ export const SignUpCard = () => {
                                     <FormMessage/>
                                 </FormItem>
                             )}/>
-                        <Button disabled={false} size="lg" className="w-full">
-                            Login
+                        <Button disabled={isPending} size="lg" className="w-full">
+                            Register
                         </Button>
                     </form>
                 </Form>
@@ -105,7 +113,7 @@ export const SignUpCard = () => {
             </div>
             <CardContent className="p-7 flex flex-col gap-y-4">
                 <Button
-                    disabled={false}
+                    disabled={isPending}
                     variant="secondary"
                     size="lg"
                     className="w-full">
@@ -113,7 +121,7 @@ export const SignUpCard = () => {
                     Login with Google
                 </Button>
                 <Button
-                    disabled={false}
+                    disabled={isPending}
                     variant="secondary"
                     size="lg"
                     className="w-full">
