@@ -3,7 +3,7 @@ import {zValidator} from "@hono/zod-validator";
 import {loginSchema, registerSchema} from "../schemas";
 import {createAdminClient} from "@/lib/appwrite";
 import {ID} from "node-appwrite";
-import {deleteCookie, setCookie} from "hono/cookie";
+import {deleteCookie, getCookie, setCookie} from "hono/cookie";
 import {AUTH_COOKIE} from "@/features/auth/constants";
 import {sessionMiddleware} from "@/lib/session-middlware";
 
@@ -26,6 +26,8 @@ const app = new Hono()
                 password
             );
 
+            const value = getCookie(c);
+            console.log(value);
             setCookie(c, AUTH_COOKIE, session.secret, {
                 path: "/",
                 httpOnly: true,
@@ -33,15 +35,14 @@ const app = new Hono()
                 sameSite: "strict",
                 maxAge: 60 * 60 * 24 * 30,
             });
-
             return c.json({success: true});
+            console.log(value);
         }
     )
     .post("/register",
         zValidator("json", registerSchema),
         async (c) => {
             const {name, email, password} = c.req.valid("json");
-            // @ts-ignore
             const {account} = await createAdminClient();
             await account.create(
                 ID.unique(),
@@ -62,7 +63,6 @@ const app = new Hono()
                 sameSite: "strict",
                 maxAge: 60 * 60 * 24 * 30,
             });
-
             return c.json({success: true});
         }
     )
