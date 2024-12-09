@@ -36,7 +36,6 @@ const app = new Hono()
                 maxAge: 60 * 60 * 24 * 30,
             });
             return c.json({success: true});
-            console.log(value);
         }
     )
     .post("/register",
